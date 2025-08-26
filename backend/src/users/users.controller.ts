@@ -1,46 +1,41 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { Controller, Get, Post, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { UserService } from './users.service';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { CreateUserDto } from '../auth/dto/auth.dto';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/guards/roles.decorator';
+import { UserRole } from './schemas/user.schema';
 
 @Controller('users')
-@UseGuards(AuthGuard)
-export class UsersController {
-constructor(private readonly usersService: UsersService) {}
-
-@Get()
-async findAll() {
-return this.usersService.findAll();
-}
-
-@Get(':id')
-async findOne(@Param('id') id: string) {
-return this.usersService.findById(id);
-}
+export class UserController {
+constructor(private readonly userService: UserService) {}
 
 @Post()
-async create(@Body() createUserDto: CreateUserDto) {
-return this.usersService.createByAdmin(createUserDto);
+async create(@Body() data) {
+return this.userService.createUser(data);
 }
 
-@Put(':id')
-async update(@Param('id') id: string, @Body() updateData: any) {
-return this.usersService.update(id, updateData);
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
+@Get()
+async getAll() {
+return this.userService.getAllUsers();
 }
 
-@Delete(':id')
-async delete(@Param('id') id: string) {
-await this.usersService.delete(id);
-return { message: 'User deleted successfully' };
+@UseGuards(AuthGuard, RolesGuard)
+@Get(':id')
+async getOne(@Param('id') id: string) {
+return this.userService.getUserById(id);
 }
 
-@Put(':id/activate')
-async activateUser(@Param('id') id: string) {
-return this.usersService.update(id, { isActive: true });
+@UseGuards(AuthGuard, RolesGuard)
+@Get(':id')
+async findByEmail(@Param('email') id: string) {
+return this.userService.findByEmail(id);
 }
 
-@Put(':id/deactivate')
-async deactivateUser(@Param('id') id: string) {
-return this.usersService.update(id, { isActive: false });
+@UseGuards(AuthGuard, RolesGuard)
+@Patch(':id')
+async update(@Param('id') id: string, @Body() data, @Req() req) {
+return this.userService.updateUser(id, data);
 }
 }

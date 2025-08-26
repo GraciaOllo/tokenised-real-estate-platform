@@ -17,7 +17,12 @@ origin: 'http://localhost:5173',
 credentials: true,
 });
 
-app.useGlobalPipes(new ValidationPipe());
+app.useGlobalPipes(new ValidationPipe({
+  transform: true,
+  transformOptions: {
+    enableImplicitConversion: true,
+  },
+}));
 
 await app.listen(3001);
 console.log('Green Backend running on http://localhost:3001');

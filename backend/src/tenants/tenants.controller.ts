@@ -19,7 +19,8 @@ export class TenantsController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() createTenantDto: CreateTenantDto) {
+async create(@Body() createTenantDto: CreateTenantDto) {
+    console.log('Incoming tenant data:', createTenantDto);
     return this.tenantsService.create(createTenantDto);
   }
 

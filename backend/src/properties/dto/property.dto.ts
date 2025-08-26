@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsOptional, IsArray, IsPositive, IsUUID, IsNotEmpty } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, IsPositive, IsUUID, IsNotEmpty, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -52,19 +52,61 @@ export class CreatePropertyDto {
 
     @IsOptional()
     @IsArray()
+    @IsString({ each: true })
     images?: string[];
 
     @IsOptional()
     @IsArray()
+    @IsString({ each: true })
     documents?: string[];
 
+    // Workflow flags
     @IsOptional()
-    @IsUUID()
-    ownerId?: string;
+    @IsBoolean()
+    isPublished?: boolean; // true once admin deploys to blockchain
+
+    // Blockchain fields (filled by admin after deployment)
+    @IsOptional()
+    @IsString()
+    contractAddress?: string;
 
     @IsOptional()
     @IsString()
-    ownerName?: string;
+    network?: string; // e.g., "ethereum", "polygon"
+
+    @IsOptional()
+    @IsString()
+    tokenSymbol?: string;
+
+    @IsOptional()
+    @IsString()
+    tokenName?: string;
+
+    @IsOptional()
+    @IsString()
+    ownerWalletAddress?: string;
+
+    @IsOptional()
+    @IsString()
+    tokenStandard?: string; // "ERC20" | "ERC721" | "ERC1155"
+
+    @IsOptional()
+    @IsString()
+    transactionHash?: string;
+
+    @IsOptional()
+    @IsNumber()
+    @Type(() => Number)
+    tokenId?: number;
+
+    @IsOptional()
+    @IsNumber()
+    @Type(() => Number)
+    rentCollected?: number;
+
+    @IsOptional()
+    @IsString()
+    rentDistributionTxHash?: string;
 }
 
 export class UpdatePropertyDto extends PartialType(CreatePropertyDto) {}

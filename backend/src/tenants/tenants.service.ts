@@ -3,13 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Tenant, TenantDocument } from './schemas/tenant.schema';
 import { CreateTenantDto, UpdateTenantDto } from './dto/tenant.dto';
-import { PropertiesService } from '../properties/properties.service';
+import { PropertyService } from '../properties/properties.service';
 
 @Injectable()
 export class TenantsService {
   constructor(
     @InjectModel(Tenant.name) private tenantModel: Model<TenantDocument>,
-    private readonly propertiesService: PropertiesService,
+    private readonly propertiesService: PropertyService,
   ) {}
 
   async create(createTenantDto: CreateTenantDto): Promise<Tenant> {

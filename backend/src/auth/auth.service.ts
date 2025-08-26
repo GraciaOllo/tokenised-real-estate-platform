@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserService } from '../users/users.service';
 import { UserDocument } from '../users/schemas/user.schema'; 
 import { CreateUserDto, LoginDto } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
@@ -7,7 +7,7 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
-constructor(private readonly usersService: UsersService) {}
+constructor(private readonly usersService: UserService) {}
 
 async register(createUserDto: CreateUserDto) {
 const existingUser = await this.usersService.findByEmail(createUserDto.email);
@@ -32,7 +32,7 @@ return {
     email: user.email,
     name: user.name,
     role: user.role,
-    walletAddress: user.walletAddress,
+    walletAddress: user.walletAddresses,
     },
 };
 }
@@ -58,7 +58,7 @@ return {
     email: user.email,
     name: user.name,
     role: user.role,
-    walletAddress: user.walletAddress,
+    walletAddress: user.walletAddresses,
     },
 };
 }

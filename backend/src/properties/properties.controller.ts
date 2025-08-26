@@ -1,90 +1,43 @@
-import {
-    Controller,
-    Get,
-    Post,
-    Put,
-    Delete,
-    Param,
-    Body,
-    UseGuards,
-    Request,
-    UseInterceptors,
-    UploadedFiles
-} from '@nestjs/common';
-import { AnyFilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { PropertiesService } from './properties.service';
+import { Controller, Get, Post, Patch, Param, Body, Req, UseGuards } from '@nestjs/common';
+import { PropertyService } from './properties.service';
 import { CreatePropertyDto, UpdatePropertyDto } from './dto/property.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { Express } from 'express';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/guards/roles.decorator';
+import { UserRole } from '../users/schemas/user.schema';
 
 @Controller('properties')
-export class PropertiesController {
-    constructor(private readonly propertiesService: PropertiesService) {}
+export class PropertyController {
+constructor(private readonly propertyService: PropertyService) {}
 
-    @Get()
-    async findAll() {
-        return this.propertiesService.findAll();
-    }
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UserRole.MANAGER)
+@Post()
+async create(@Body() dto: CreatePropertyDto, @Req() req) {
+return this.propertyService.createProperty(dto, req.user);
+}
 
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.propertiesService.findById(id);
-    }
+@Get()
+async getAll() {
+return this.propertyService.getAllProperties();
+}
 
-    @Post()
-    @UseGuards(AuthGuard)
-    @UseInterceptors(
-        AnyFilesInterceptor({
-            storage: diskStorage({
-                destination: './uploads',
-                filename: (req, file, cb) => {
-                    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-                    cb(null, `${file.fieldname}-${uniqueSuffix}${extname(file.originalname)}`);
-                },
-            }),
-        }),
-    )
-    async create(
-        @UploadedFiles() files: Express.Multer.File[],
-        @Body() createPropertyDto: CreatePropertyDto,
-        @Request() req,
-    ) {
-        const images = files
-            .filter(f => f.fieldname === 'images')
-            .map(f => `/uploads/${f.filename}`);
-        const documents = files
-            .filter(f => f.fieldname === 'documents')
-            .map(f => `/uploads/${f.filename}`);
+@Get(':id')
+async getOne(@Param('id') id: string) {
+return this.propertyService.getPropertyById(id);
+}
 
-        return this.propertiesService.create({
-            ...createPropertyDto,
-            images,
-            documents,
-            ownerId: req.user.userId,
-        });
-    }
+@UseGuards(AuthGuard, RolesGuard)
+@Patch(':id')
+async update(@Param('id') id: string, @Body() dto: UpdatePropertyDto, @Req() req) {
+return this.propertyService.updateProperty(id, dto, req.user);
+}
 
-    @Put(':id')
-    @UseGuards(AuthGuard)
-    async update(
-        @Param('id') id: string,
-        @Body() updatePropertyDto: UpdatePropertyDto,
-    ) {
-        return this.propertiesService.update(id, updatePropertyDto);
-    }
-
-    @Delete(':id')
-    @UseGuards(AuthGuard)
-    async delete(@Param('id') id: string) {
-        await this.propertiesService.delete(id);
-        return { message: 'Property deleted successfully' };
-    }
-
-    @Get('owner/:ownerId')
-    @UseGuards(AuthGuard)
-    async findByOwner(@Param('ownerId') ownerId: string) {
-        return this.propertiesService.findByOwner(ownerId);
-    }
+// Admin publishes property to blockchain
+@UseGuards(AuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
+@Patch(':id/publish')
+async publish(@Param('id') id: string, @Body() blockchainData: Partial<CreatePropertyDto>, @Req() req) {
+return this.propertyService.publishProperty(id, req.user, blockchainData);
+}
 }

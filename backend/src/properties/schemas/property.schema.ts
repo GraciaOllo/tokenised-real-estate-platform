@@ -52,6 +52,8 @@ export class Property {
 
     @Prop()
     rejectionReason: string;
+    save: any;
+    isPublished: boolean;
 }
 
 export const PropertySchema = SchemaFactory.createForClass(Property);
