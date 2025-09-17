@@ -1,0 +1,9 @@
+{
+  "network": "development",
+  "deployedAt": "2025-09-02T06:57:08.707Z",
+  "contracts": {
+    "PropertyRegistryERC721": "0x775a295663fF3A8F55F7AD25Cc31919989047689",
+    "PropertyMarketplace": "0xafBd9149718AecF2d6b69714D5EDf565e181f3AB"
+  },
+  "deployerAddress": "0xE59aeea3fe3d026AcE0CC68F893bf7f5ec73FB4f"
+}
